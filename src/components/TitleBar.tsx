@@ -14,14 +14,13 @@ interface TitleBarProps {
 const TitleBar: React.FC<TitleBarProps> = ({ username, role }) => {
   return (
     <Header
-      className="flex items-center justify-between px-4 bg-[#30475E] h-9 leading-9 relative z-10" // Tailwind classes
+      className="flex items-center justify-between px-4 bg-[#30475E] h-12 relative z-10" // Tailwind classes
       style={{
         WebkitAppRegion: 'drag', // Keep Electron-specific style for draggable area
       }}
     >
-      {/* Removed "aigentools" title to align with user's request */}
-      <div style={{ WebkitAppRegion: 'no-drag' }} className="flex-grow">
-        {/* Placeholder for potential left-aligned elements if needed in future */}
+      <div style={{ WebkitAppRegion: 'no-drag' }} className="flex-grow flex items-center">
+         <span className="text-white font-bold text-lg">AigenTools</span>
       </div>
 
       <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>

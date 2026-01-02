@@ -55,15 +55,11 @@ const AppShell: React.FC = () => {
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden">
-      {/* Header 固定高度 */}
-      {user ? (
-        <TitleBar username={user.username} role={user.role} />
-      ) : (
-        <div className="bg-[#30475E] h-9 leading-9 relative z-10" style={{ WebkitAppRegion: 'drag' }}></div>
-      )}
+      {/* 修复：无论是否登录，都渲染 TitleBar */}
+      <TitleBar username={user?.username} role={user?.role} />
 
-      {/* 主容器：占据剩余高度，不滚动，无 Padding */}
       <div className="flex flex-1 overflow-hidden">
+         {/* ... (路由部分保持不变) */}
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
