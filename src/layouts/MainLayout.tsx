@@ -65,10 +65,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ user }) => {
                         不要把 padding 加在 Content 上，也不要加在 h-full 的元素上。
                         加在这里！如果内容少，flex-grow 会保证它撑开；如果内容多，外层 Content 会滚动。
                     */}
-                    <div className="flex-grow p-4">
+                    <div className="flex flex-col flex-grow p-4">
                         
                         {/* 这里的 div 或者是 Outlet 里的内容容器 */}
-                        <div className="bg-white p-6 shadow rounded-lg min-h-full">
+                        <div className="flex-1 bg-white p-6 shadow rounded-lg">
                             {user ? <Outlet /> : null}
                         </div>
 
