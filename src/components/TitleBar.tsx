@@ -1,6 +1,6 @@
 import React from 'react';
-import { Layout, Typography, Button, Space } from 'antd'; // Added Button and Space
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons'; // Added UserOutlined
+import { Layout, Typography } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -8,10 +8,10 @@ const { Title } = Typography;
 interface TitleBarProps {
   username?: string;
   role?: string;
-  onLogout: () => void;
+
 }
 
-const TitleBar: React.FC<TitleBarProps> = ({ username, role, onLogout }) => {
+const TitleBar: React.FC<TitleBarProps> = ({ username, role }) => {
   return (
     <Header
       className="flex items-center justify-between px-4 bg-[#30475E] h-9 leading-9 relative z-10" // Tailwind classes
@@ -24,21 +24,13 @@ const TitleBar: React.FC<TitleBarProps> = ({ username, role, onLogout }) => {
         {/* Placeholder for potential left-aligned elements if needed in future */}
       </div>
 
-      <Space size="small" className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
+      <div className="flex items-center" style={{ WebkitAppRegion: 'no-drag' }}>
         {username && (
           <span className="text-white text-sm flex items-center">
             <UserOutlined className="mr-1" /> {username} ({role})
           </span>
         )}
-        <Button
-          type="text"
-          icon={<LogoutOutlined />}
-          onClick={onLogout}
-          className="text-white hover:text-gray-300"
-        >
-          Logout
-        </Button>
-      </Space>
+      </div>
     </Header>
   );
 };

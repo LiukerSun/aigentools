@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Layout, Menu } from 'antd';
-import { HomeOutlined, SettingOutlined } from '@ant-design/icons';
+import { Layout, Menu, Button, Tooltip } from 'antd'; // Added Button and Tooltip
+import { HomeOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'; // Added LogoutOutlined
 
 const { Sider, Content } = Layout;
 
@@ -13,9 +13,10 @@ interface User {
 
 interface MainLayoutProps {
     user: User | null; // User object will be passed from AppShell
+    onLogout: () => void;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ user }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ user, onLogout }) => {
     const navigate = useNavigate();
     const location = useLocation();
     
@@ -68,8 +69,20 @@ const MainLayout: React.FC<MainLayoutProps> = ({ user }) => {
                     <div className="flex flex-col flex-grow p-4">
                         
                         {/* 这里的 div 或者是 Outlet 里的内容容器 */}
-                        <div className="flex-1 bg-white p-6 shadow rounded-lg">
+                        <div className="flex-1 bg-white p-6 shadow rounded-lg relative"> {/* Added relative */}
                             {user ? <Outlet /> : null}
+                            {user && ( // Only show logout button if user is logged in
+                                <Tooltip title="Logout" placement="left">
+                                    <Button
+                                        type="primary"
+                                        danger
+                                        shape="circle"
+                                        icon={<LogoutOutlined />}
+                                        onClick={onLogout}
+                                        style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100 }}
+                                    />
+                                </Tooltip>
+                            )}
                         </div>
 
                     </div>

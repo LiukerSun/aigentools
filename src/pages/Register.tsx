@@ -27,7 +27,7 @@ const Register = () => {
     };
 
     return (
-        <div className="flex justify-center items-center h-full bg-gray-100">
+        <div className="flex justify-center items-center h-full w-full bg-gray-100">
             <Card
                 className="rounded-lg shadow-md px-8 py-4" // Removed w-full max-w-lg, added px-8 py-4
                 style={{ width: 480 }} // Fixed width for the card

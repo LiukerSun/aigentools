@@ -57,7 +57,7 @@ const AppShell: React.FC = () => {
     <div className="flex h-screen w-screen flex-col overflow-hidden">
       {/* Header 固定高度 */}
       {user ? (
-        <TitleBar username={user.username} role={user.role} onLogout={handleLogout} />
+        <TitleBar username={user.username} role={user.role} />
       ) : (
         <div className="bg-[#30475E] h-9 leading-9 relative z-10" style={{ WebkitAppRegion: 'drag' }}></div>
       )}
@@ -68,7 +68,7 @@ const AppShell: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           {/* MainLayout (and its nested routes) are protected by this AppShell's internal logic */}
-          <Route path="/" element={user ? <MainLayout user={user} /> : <Login />}> {/* Pass user to MainLayout */}
+          <Route path="/" element={user ? <MainLayout user={user} onLogout={handleLogout} /> : <Login />}> {/* Pass user to MainLayout */}
             <Route index element={<Home />} /> {/* Home page as index route */}
             <Route path="admin" element={user?.role === 'admin' ? <Admin /> : <Home />} /> {/* Protect admin route */}
           </Route>
