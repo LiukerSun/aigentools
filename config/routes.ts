@@ -40,6 +40,12 @@ export default [
     component: './models',
   },
   {
+    path: '/tasks',
+    name: 'task_list',
+    icon: 'table',
+    component: './task/list',
+  },
+  {
     path: '/admin',
     name: 'admin',
     icon: 'crown',

@@ -3,6 +3,7 @@ import {
   getModelNames,
   getModelParameters,
 } from '@/services/api/v1/models/api';
+import { submitTask } from '@/services/api/v1/task/api';
 import type { AIModelConfig } from '@/services/api/v1/models/type';
 import {
   ProFormSelect,
@@ -37,14 +38,27 @@ export default function ModelSteps() {
             const submitData = {
               body: values,
               user: {
-                creatorId: currentUser?.id,
-                creatorName: currentUser?.username,
+                creatorId: currentUser?.id as number,
+                creatorName: currentUser?.username as string,
               },
             };
-            console.log('Submission Data:', submitData);
-            message.success('提交成功');
-            setVisible(false);
-            return true;
+            
+            try {
+              console.log('Submission Data:', submitData);
+              const res = await submitTask(submitData);
+              if (res && res.status === 200) {
+                message.success('提交成功');
+                setVisible(false);
+                return true;
+              } else {
+                message.error('提交失败: ' + (res?.message || '未知错误'));
+                return false;
+              }
+            } catch (error) {
+              console.error('Task submission failed:', error);
+              message.error('提交失败，请稍后重试');
+              return false;
+            }
           }}
           submitter={{
             render: (props) => {

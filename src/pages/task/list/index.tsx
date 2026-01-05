@@ -1,0 +1,324 @@
+import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import { PageContainer, ProTable } from '@ant-design/pro-components';
+import { Button, Tag, Space, message, Image, Tooltip } from 'antd';
+import React, { useRef, useState } from 'react';
+import { ModalForm, ProFormTextArea } from '@ant-design/pro-components';
+import { getTaskList, getTaskDetail, approveTask, updateTask } from '@/services/api/v1/task/api';
+import type { TaskItem } from '@/services/api/v1/task/type';
+import ReactJson from 'react-json-view';
+import TaskDetail from './components/TaskDetail';
+import { Modal } from 'antd';
+
+/**
+ * 任务状态枚举
+ * 1: PendingAudit (待审核)
+ * 2: PendingExecution (待执行)
+ * 3: Executing (执行中)
+ * 4: Completed (已完成)
+ * 5: Failed (失败)
+ * 6: Cancelled (已取消)
+ */
+const TaskStatusEnum = {
+  1: { text: '待审核', status: 'Warning' },
+  2: { text: '待执行', status: 'Processing' },
+  3: { text: '执行中', status: 'Processing' },
+  4: { text: '已完成', status: 'Success' },
+  5: { text: '失败', status: 'Error' },
+  6: { text: '已取消', status: 'Default' },
+};
+
+const TaskList: React.FC = () => {
+  const actionRef = useRef<ActionType>(undefined);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [currentTask, setCurrentTask] = useState<TaskItem>();
+  const [editFormInitialValues, setEditFormInitialValues] = useState<{ input_data: string }>();
+
+  const [paramModalOpen, setParamModalOpen] = useState(false);
+  const [currentParam, setCurrentParam] = useState<object>({});
+
+  const handleShowParam = (param: object) => {
+    setCurrentParam(param);
+    setParamModalOpen(true);
+  };
+
+  const handleShowDetail = async (record: TaskItem) => {
+    try {
+      const res = await getTaskDetail(record.ID);
+      if (res && res.status === 200 && res.data) {
+        setCurrentTask(res.data);
+        setDetailOpen(true);
+      } else {
+        message.error('获取详情失败');
+      }
+    } catch (error) {
+      message.error('获取详情失败');
+    }
+  };
+
+  const handleApprove = async (id: number) => {
+    try {
+      const res = await approveTask(id);
+      if (res && res.status === 200) {
+        message.success('任务审核通过');
+        setDetailOpen(false);
+        actionRef.current?.reload();
+      } else {
+        message.error('审核失败: ' + (res?.message || '未知错误'));
+      }
+    } catch (error) {
+      message.error('审核失败');
+    }
+  };
+
+  const handleEdit = (record: TaskItem) => {
+    setCurrentTask(record);
+    setEditFormInitialValues({
+      input_data: JSON.stringify(record.input_data, null, 2),
+    });
+    setEditModalOpen(true);
+  };
+
+  const columns: ProColumns<TaskItem>[] = [
+    {
+      title: '任务ID',
+      dataIndex: 'ID',
+      width: 80,
+      search: false,
+    },
+    {
+      title: '创建人',
+      dataIndex: 'creator_name',
+      width: 120,
+      render: (_, record) => (
+        <span>{record.creator_name} (ID: {record.creator_id})</span>
+      ),
+    },
+    {
+      title: '预览图',
+      dataIndex: 'input_data',
+      search: false,
+      width: 100,
+      render: (_, record) => {
+        const imgUrl = record.input_data?.image;
+        if (!imgUrl) return '-';
+        return (
+          <Image
+            src={imgUrl}
+            width={60}
+            height={60}
+            style={{ objectFit: 'cover', borderRadius: 4 }}
+          />
+        );
+      },
+    },
+    {
+      title: 'Prompt',
+      dataIndex: 'input_data',
+      search: false,
+      width: 200,
+      ellipsis: true,
+      render: (_, record) => {
+        const prompt = record.input_data?.prompt;
+        if (!prompt) return '-';
+        return (
+          <Tooltip title={prompt}>
+            <span>{prompt}</span>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      width: 100,
+      valueEnum: TaskStatusEnum,
+    },
+    {
+      title: '重试次数',
+      dataIndex: 'retry_count',
+      width: 100,
+      search: false,
+      render: (_, record) => (
+        <span>{record.retry_count} / {record.max_retries}</span>
+      ),
+    },
+    {
+      title: '输入参数',
+      dataIndex: 'input_data',
+      search: false,
+      render: (_, record) => (
+        <a onClick={() => handleShowParam(record.input_data)}>查看参数</a>
+      ),
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'CreatedAt',
+      valueType: 'dateTime',
+      width: 160,
+      search: false,
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'UpdatedAt',
+      valueType: 'dateTime',
+      width: 160,
+      search: false,
+    },
+    {
+      title: '操作',
+      valueType: 'option',
+      width: 120,
+      render: (_, record) => [
+        record.status === 1 && (
+          <a key="approve" onClick={() => handleApprove(record.ID)}>
+            审核
+          </a>
+        ),
+        record.status === 1 && (
+          <a key="edit" onClick={() => handleEdit(record)}>
+            编辑
+          </a>
+        ),
+        <a key="detail" onClick={() => handleShowDetail(record)}>
+          详情
+        </a>,
+      ],
+    },
+  ];
+
+  return (
+    <PageContainer>
+      <ProTable<TaskItem>
+        headerTitle="任务列表"
+        actionRef={actionRef}
+        rowKey="ID"
+        search={{
+          labelWidth: 120,
+        }}
+        toolBarRender={() => [
+          <Button
+            key="button"
+            type="primary"
+            onClick={() => {
+              // 刷新
+              actionRef.current?.reload();
+            }}
+          >
+            刷新
+          </Button>,
+        ]}
+        request={async (params) => {
+          try {
+            const res = await getTaskList({
+              page: params.current,
+              page_size: params.pageSize,
+              status: params.status ? Number(params.status) : undefined,
+              creator_id: params.creator_id,
+            });
+            
+            return {
+              data: res.data.items || [],
+              success: true,
+              total: res.data.total || 0,
+            };
+          } catch (error) {
+            message.error('获取任务列表失败');
+            return {
+              data: [],
+              success: false,
+              total: 0,
+            };
+          }
+        }}
+        columns={columns}
+      />
+      <TaskDetail 
+        open={detailOpen} 
+        onClose={() => setDetailOpen(false)} 
+        task={currentTask}
+        onApprove={handleApprove}
+      />
+      
+      <Modal
+        title="任务参数"
+        open={paramModalOpen}
+        onCancel={() => setParamModalOpen(false)}
+        footer={null}
+        width={600}
+      >
+        <div style={{ maxHeight: 500, overflow: 'auto' }}>
+          <ReactJson 
+            src={currentParam} 
+            collapsed={false} 
+            displayDataTypes={false}
+            enableClipboard={true}
+            name={false}
+          />
+        </div>
+      </Modal>
+
+      <ModalForm
+        title="编辑任务参数"
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        initialValues={editFormInitialValues}
+        modalProps={{
+          destroyOnClose: true,
+        }}
+        onFinish={async (values) => {
+          if (!currentTask) return false;
+          try {
+            let parsedData;
+            try {
+              parsedData = JSON.parse(values.input_data);
+            } catch (e) {
+              message.error('JSON 格式错误，请检查输入');
+              return false;
+            }
+
+            const res = await updateTask(currentTask.ID, {
+              body: parsedData,
+            });
+
+            if (res && res.status === 200) {
+              message.success('更新成功');
+              setEditModalOpen(false);
+              actionRef.current?.reload();
+              return true;
+            } else {
+              message.error('更新失败: ' + (res?.message || '未知错误'));
+              return false;
+            }
+          } catch (error) {
+            message.error('更新失败，请重试');
+            return false;
+          }
+        }}
+      >
+        <ProFormTextArea
+          name="input_data"
+          label="任务参数 (JSON)"
+          fieldProps={{
+            rows: 10,
+          }}
+          rules={[
+            { required: true, message: '请输入任务参数' },
+            {
+              validator: (_: any, value: string) => {
+                try {
+                  JSON.parse(value);
+                  return Promise.resolve();
+                } catch (error) {
+                  return Promise.reject(new Error('请输入有效的 JSON 格式'));
+                }
+              },
+            },
+          ]}
+        />
+      </ModalForm>
+    </PageContainer>
+  );
+};
+
+export default TaskList;

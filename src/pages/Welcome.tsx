@@ -98,11 +98,6 @@ const Welcome: React.FC = () => {
         </div>
       </Card>
 
-      <Card title="Test OSS Upload" style={{ marginBottom: 24 }}>
-        <p>You can click to upload or paste an image here.</p>
-        <AliyunOSSUpload onChange={(url) => console.log('Uploaded URL:', url)} />
-      </Card>
-
       <Row gutter={24}>
         <Col span={8}>
           <Card>

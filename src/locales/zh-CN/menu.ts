@@ -3,6 +3,7 @@ export default {
   'menu.more-blocks': '更多区块',
   'menu.home': '首页',
   'menu.create_mission': '创建任务',
+  'menu.task_list': '任务列表',
   'menu.admin': '管理页',
   'menu.admin.sub-page': '二级管理页',
   'menu.admin.user-management': '用户管理',
