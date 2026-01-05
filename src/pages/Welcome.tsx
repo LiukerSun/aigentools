@@ -3,6 +3,7 @@ import { useModel } from '@umijs/max';
 import { Card, Col, Row, Spin, Statistic } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { currentUser as getUserInfo } from '@/services/api/v1/user/api';
+import AliyunOSSUpload from '@/components/AliyunOSSUpload';
 
 const Welcome: React.FC = () => {
   const { initialState, setInitialState } = useModel('@@initialState');
@@ -95,6 +96,11 @@ const Welcome: React.FC = () => {
             Role: {currentUser.role}
           </div>
         </div>
+      </Card>
+
+      <Card title="Test OSS Upload" style={{ marginBottom: 24 }}>
+        <p>You can click to upload or paste an image here.</p>
+        <AliyunOSSUpload onChange={(url) => console.log('Uploaded URL:', url)} />
       </Card>
 
       <Row gutter={24}>

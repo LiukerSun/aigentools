@@ -29,6 +29,12 @@ const NO_LOGIN_WHITE_LIST = [loginPath, '/user/register'];
  *
  * @see https://umijs.org/docs/api/runtime-config#getinitialstate
  */
+import { App } from 'antd';
+
+export function rootContainer(container: React.ReactElement) {
+  return <App>{container}</App>;
+}
+
 export function getInitialState(): {
   settings?: Partial<LayoutSettings>;
   currentUser?: UserInfo;

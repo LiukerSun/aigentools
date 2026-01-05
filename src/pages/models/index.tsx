@@ -1,3 +1,4 @@
+import { useModel } from '@umijs/max';
 import {
   getModelNames,
   getModelParameters,
@@ -16,14 +17,16 @@ export default function ModelSteps() {
   const [visible, setVisible] = useState(false);
   const [modelId, setModelId] = useState<number>();
   const [modelConfig, setModelConfig] = useState<AIModelConfig>();
+  const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState || {};
 
   return (
     <div style={{ padding: 24 }}>
       <Button type="primary" onClick={() => setVisible(true)}>
-        创建模型
+        创建任务
       </Button>
       <Modal
-        title="创建模型"
+        title="创建任务"
         open={visible}
         onCancel={() => setVisible(false)}
         footer={null}
@@ -31,7 +34,14 @@ export default function ModelSteps() {
       >
         <StepsForm
           onFinish={async (values) => {
-            console.log(values);
+            const submitData = {
+              body: values,
+              user: {
+                creatorId: currentUser?.id,
+                creatorName: currentUser?.username,
+              },
+            };
+            console.log('Submission Data:', submitData);
             message.success('提交成功');
             setVisible(false);
             return true;
