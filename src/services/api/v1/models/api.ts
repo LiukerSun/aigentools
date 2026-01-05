@@ -19,6 +19,30 @@ export async function getModelList(
     });
 }
 
+/** 获取模型名称列表 GET /api/v1/models/names */
+export async function getModelNames(options?: { [key: string]: any }) {
+    return request<{
+        data: API.AIModelNameItem[];
+        message: string;
+        status: number;
+    }>('/api/v1/models/names', {
+        method: 'GET',
+        ...(options || {}),
+    });
+}
+
+/** 获取模型配置 GET /api/v1/models/{id}/parameters */
+export async function getModelParameters(id: number, options?: { [key: string]: any }) {
+    return request<{
+        data: API.AIModelConfig;
+        message: string;
+        status: number;
+    }>(`/api/v1/models/${id}/parameters`, {
+        method: 'GET',
+        ...(options || {}),
+    });
+}
+
 /** 创建模型 POST /api/v1/models/create */
 export async function createModel(body: API.CreateModelParams, options?: { [key: string]: any }) {
     return request<{ data: API.AIModelItem }>('/api/v1/models/create', {

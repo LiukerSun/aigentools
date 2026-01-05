@@ -34,6 +34,12 @@ export default [
     component: './Welcome',
   },
   {
+    path: '/models',
+    name: '模型调用',
+    icon: 'smile',
+    component: './models',
+  },
+  {
     path: '/admin',
     name: 'admin',
     icon: 'crown',
@@ -49,7 +55,7 @@ export default [
         name: 'balance-change',
         component: './admin/BalanceChange',
       },
-        {
+      {
         path: '/admin/model-manage',
         name: '模型管理',
         component: './admin/ModelManage',
