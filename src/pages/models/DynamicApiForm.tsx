@@ -58,7 +58,8 @@ const renderField = (param: ModelParameter) => {
   }
 };
 
-const DynamicApiForm: React.FC<DynamicApiFormProps> = ({ schema }) => {
+const DynamicApiForm: React.FC<DynamicApiFormProps> = (props) => {
+  const { schema } = props || {};
   if (!schema) return null;
 
   const renderSection = (params: ModelParameter[], title?: string) => {

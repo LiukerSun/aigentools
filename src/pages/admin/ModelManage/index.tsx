@@ -291,7 +291,7 @@ const ModelManage: React.FC = () => {
           parameters: currentRow?.parameters ? JSON.stringify(currentRow.parameters, null, 2) : '',
         }}
         modalProps={{
-          destroyOnClose: true,
+          destroyOnHidden: true,
           onCancel: () => setCurrentRow(undefined),
         }}
       >

@@ -200,7 +200,7 @@ const UserList: React.FC = () => {
         onOpenChange={setEditModalVisible}
         initialValues={currentRow}
         modalProps={{
-          destroyOnClose: true,
+          destroyOnHidden: true,
         }}
         onFinish={async (value) => {
           return handleUpdate(value as UpdateUserParams);
@@ -252,7 +252,7 @@ const UserList: React.FC = () => {
         open={balanceModalVisible}
         onOpenChange={setBalanceModalVisible}
         modalProps={{
-          destroyOnClose: true,
+          destroyOnHidden: true,
         }}
         onFinish={async (value) => {
           return handleBalanceAdjust(value as BalanceAdjustParams);

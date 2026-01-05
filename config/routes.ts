@@ -35,7 +35,7 @@ export default [
   },
   {
     path: '/models',
-    name: '模型调用',
+    name: 'create_mission',
     icon: 'smile',
     component: './models',
   },
@@ -57,7 +57,7 @@ export default [
       },
       {
         path: '/admin/model-manage',
-        name: '模型管理',
+        name: 'model-management',
         component: './admin/ModelManage',
       },
     ],
