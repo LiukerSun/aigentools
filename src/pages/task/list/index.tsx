@@ -44,7 +44,7 @@ const TaskList: React.FC = () => {
 
   const handleShowDetail = async (record: TaskItem) => {
     try {
-      const res = await getTaskDetail(record.ID);
+      const res = await getTaskDetail(record.id);
       if (res && res.status === 200 && res.data) {
         setCurrentTask(res.data);
         setDetailOpen(true);
@@ -73,8 +73,9 @@ const TaskList: React.FC = () => {
 
   const handleEdit = (record: TaskItem) => {
     setCurrentTask(record);
+    const inputData = record.input_data?.data || record.input_data;
     setEditFormInitialValues({
-      input_data: JSON.stringify(record.input_data, null, 2),
+      input_data: JSON.stringify(inputData, null, 2),
     });
     setEditModalOpen(true);
   };
@@ -82,7 +83,7 @@ const TaskList: React.FC = () => {
   const columns: ProColumns<TaskItem>[] = [
     {
       title: '任务ID',
-      dataIndex: 'ID',
+      dataIndex: 'id',
       width: 80,
       search: false,
     },
@@ -100,7 +101,8 @@ const TaskList: React.FC = () => {
       search: false,
       width: 100,
       render: (_, record) => {
-        const imgUrl = record.input_data?.image;
+        const inputData = record.input_data?.data || record.input_data;
+        const imgUrl = inputData?.image;
         if (!imgUrl) return '-';
         return (
           <Image
@@ -119,7 +121,8 @@ const TaskList: React.FC = () => {
       width: 200,
       ellipsis: true,
       render: (_, record) => {
-        const prompt = record.input_data?.prompt;
+        const inputData = record.input_data?.data || record.input_data;
+        const prompt = inputData?.prompt;
         if (!prompt) return '-';
         return (
           <Tooltip title={prompt}>
@@ -153,14 +156,14 @@ const TaskList: React.FC = () => {
     },
     {
       title: '创建时间',
-      dataIndex: 'CreatedAt',
+      dataIndex: 'created_at',
       valueType: 'dateTime',
       width: 160,
       search: false,
     },
     {
       title: '更新时间',
-      dataIndex: 'UpdatedAt',
+      dataIndex: 'updated_at',
       valueType: 'dateTime',
       width: 160,
       search: false,
@@ -171,7 +174,7 @@ const TaskList: React.FC = () => {
       width: 120,
       render: (_, record) => [
         record.status === 1 && (
-          <a key="approve" onClick={() => handleApprove(record.ID)}>
+          <a key="approve" onClick={() => handleApprove(record.id)}>
             审核
           </a>
         ),
@@ -192,7 +195,7 @@ const TaskList: React.FC = () => {
       <ProTable<TaskItem>
         headerTitle="任务列表"
         actionRef={actionRef}
-        rowKey="ID"
+        rowKey="id"
         search={{
           labelWidth: 120,
         }}
@@ -277,8 +280,17 @@ const TaskList: React.FC = () => {
               return false;
             }
 
-            const res = await updateTask(currentTask.ID, {
-              body: parsedData,
+            // 保持原有的结构，只更新 data 部分
+            const originalInputData = currentTask.input_data || {};
+            const isNested = !!originalInputData.data;
+            
+            const newBody = isNested ? {
+              ...originalInputData,
+              data: parsedData
+            } : parsedData;
+
+            const res = await updateTask(currentTask.id, {
+              body: newBody,
             });
 
             if (res && res.status === 200) {

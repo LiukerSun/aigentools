@@ -24,7 +24,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ open, onClose, task, onApprove 
 
   const renderItems = () => {
     const items = [
-      { label: '任务ID', children: task.ID },
+      { label: '任务ID', children: task.id },
       { label: '创建人', children: `${task.creator_name} (ID: ${task.creator_id})` },
       {
         label: '状态',
@@ -35,8 +35,8 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ open, onClose, task, onApprove 
         ),
       },
       { label: '重试次数', children: `${task.retry_count} / ${task.max_retries}` },
-      { label: '创建时间', children: task.CreatedAt },
-      { label: '更新时间', children: task.UpdatedAt },
+      { label: '创建时间', children: task.created_at },
+      { label: '更新时间', children: task.updated_at },
     ];
 
     if (task.result_url) {
@@ -63,12 +63,13 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ open, onClose, task, onApprove 
       });
     }
 
+    const inputData = task.input_data?.data || task.input_data;
     items.push({
       label: '输入参数',
       children: (
         <div style={{ maxHeight: 400, overflow: 'auto' }}>
           <ReactJson
-            src={task.input_data}
+            src={inputData}
             collapsed={false}
             displayDataTypes={false}
             enableClipboard={true}
@@ -77,6 +78,23 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ open, onClose, task, onApprove 
         </div>
       ),
     });
+
+    if (task.input_data?.model) {
+      items.push({
+        label: '模型信息',
+        children: (
+          <div style={{ maxHeight: 200, overflow: 'auto' }}>
+            <ReactJson
+              src={task.input_data.model}
+              collapsed={false}
+              displayDataTypes={false}
+              enableClipboard={true}
+              name={false}
+            />
+          </div>
+        ),
+      });
+    }
 
     return items.map((item, index) => (
       <Descriptions.Item key={index} label={item.label}>
@@ -87,14 +105,14 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ open, onClose, task, onApprove 
 
   return (
     <Drawer
-      title={`任务详情 #${task.ID}`}
+      title={`任务详情 #${task.id}`}
       width={600}
       open={open}
       onClose={onClose}
       extra={
         <Space>
           {task.status === 1 && (
-            <Button type="primary" onClick={() => onApprove?.(task.ID)}>
+            <Button type="primary" onClick={() => onApprove?.(task.id)}>
               审核通过
             </Button>
           )}

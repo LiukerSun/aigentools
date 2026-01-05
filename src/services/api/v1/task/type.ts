@@ -7,10 +7,10 @@ export interface TaskSubmitBody {
 }
 
 export interface TaskItem {
-  ID: number;
-  CreatedAt: string;
-  UpdatedAt: string;
-  DeletedAt: string | null;
+  id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
   input_data: Record<string, any>;
   creator_id: number;
   creator_name: string;

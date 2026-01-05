@@ -4,13 +4,13 @@ import {
   getModelParameters,
 } from '@/services/api/v1/models/api';
 import { submitTask } from '@/services/api/v1/task/api';
-import type { AIModelConfig } from '@/services/api/v1/models/type';
+import type { AIModelConfig, AIModelNameItem } from '@/services/api/v1/models/type';
 import {
   ProFormSelect,
   StepsForm,
 } from '@ant-design/pro-components';
 import { Button, Modal, message } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import DynamicApiForm from './DynamicApiForm';
 
@@ -18,8 +18,17 @@ export default function ModelSteps() {
   const [visible, setVisible] = useState(false);
   const [modelId, setModelId] = useState<number>();
   const [modelConfig, setModelConfig] = useState<AIModelConfig>();
+  const [modelList, setModelList] = useState<AIModelNameItem[]>([]);
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState || {};
+
+  useEffect(() => {
+    getModelNames().then(res => {
+      if (res.status === 200 && res.data) {
+        setModelList(res.data);
+      }
+    });
+  }, []);
 
   return (
     <div style={{ padding: 24 }}>
@@ -35,8 +44,16 @@ export default function ModelSteps() {
       >
         <StepsForm
           onFinish={async (values) => {
+            const selectedModel = modelList.find((m) => m.id === values.modelId);
+
             const submitData = {
-              body: values,
+              body: {
+                data: values,
+                model: {
+                  model_url: selectedModel?.url || '',
+                  model_name: selectedModel?.name || '',
+                },
+              },
               user: {
                 creatorId: currentUser?.id as number,
                 creatorName: currentUser?.username as string,
@@ -107,22 +124,10 @@ export default function ModelSteps() {
               name="modelId"
               label="模型名称"
               rules={[{ required: true, message: '请选择模型' }]}
-              request={async () => {
-                try {
-                  const res = await getModelNames();
-                  if (res.status === 200 && res.data) {
-                    return res.data.map((item) => ({
-                      label: item.name,
-                      value: item.id,
-                      key: item.id,
-                    }));
-                  }
-                  return [];
-                } catch (error) {
-                  message.error('获取模型列表失败');
-                  return [];
-                }
-              }}
+              options={modelList.map((item) => ({
+                label: item.name,
+                value: item.id,
+              }))}
             />
           </StepsForm.StepForm>
 
