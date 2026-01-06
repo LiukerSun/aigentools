@@ -34,12 +34,6 @@ export default [
     component: './Welcome',
   },
   {
-    path: '/models',
-    name: 'create_mission',
-    icon: 'smile',
-    component: './models',
-  },
-  {
     path: '/tasks',
     name: 'task_list',
     icon: 'table',
