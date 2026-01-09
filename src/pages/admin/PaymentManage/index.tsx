@@ -76,6 +76,8 @@ const PaymentManage: React.FC = () => {
       valueType: 'select',
       valueEnum: {
         epay: { text: 'Epay' },
+        alipay: { text: '支付宝' },
+        wxpay: { text: '微信支付' },
       },
     },
     {
@@ -188,10 +190,10 @@ const PaymentManage: React.FC = () => {
             label="Payment Type"
             valueEnum={{
                 epay: 'Epay',
+                alipay: '支付宝',
+                wxpay: '微信支付',
             }}
             rules={[{ required: true, message: 'Please select a type' }]}
-            // The requirements imply fixed to 'epay', so maybe we can disable it or just default it
-            disabled={true} 
         />
 
         <ProFormText

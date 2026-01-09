@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { PageContainer, ProCard } from '@ant-design/pro-components';
-import { Button, InputNumber, Radio, message, Space } from 'antd';
+import { Button, InputNumber, Radio, message, Space, Segmented } from 'antd';
 import { getPaymentMethods, createPayment } from '@/services/api/v1/payment/api';
 import type { PaymentMethod } from '@/services/api/v1/payment/type';
+import { WechatOutlined, AlipayOutlined } from '@ant-design/icons';
 
 const RechargePage: React.FC = () => {
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [selectedMethod, setSelectedMethod] = useState<string>('');
+  const [selectedChannel, setSelectedChannel] = useState<'alipay' | 'wxpay'>('alipay');
   const [amount, setAmount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -51,6 +53,7 @@ const RechargePage: React.FC = () => {
       const res = await createPayment({
         amount: amount,
         payment_method_uuid: selectedMethod,
+        payment_channel: selectedChannel,
         return_url: window.location.href,
       });
 
@@ -91,6 +94,33 @@ const RechargePage: React.FC = () => {
              ) : (
                <div>No payment methods available</div>
              )}
+        </ProCard>
+
+        <ProCard title="Select Payment Channel" bordered headerBordered>
+             <Segmented
+                options={[
+                  {
+                    label: (
+                      <div style={{ padding: 4 }}>
+                        <AlipayOutlined style={{ fontSize: 24, color: '#1677ff' }} />
+                        <div>Alipay</div>
+                      </div>
+                    ),
+                    value: 'alipay',
+                  },
+                  {
+                    label: (
+                      <div style={{ padding: 4 }}>
+                        <WechatOutlined style={{ fontSize: 24, color: '#52c41a' }} />
+                        <div>WeChat Pay</div>
+                      </div>
+                    ),
+                    value: 'wxpay',
+                  },
+                ]}
+                value={selectedChannel}
+                onChange={(value) => setSelectedChannel(value as 'alipay' | 'wxpay')}
+              />
         </ProCard>
 
         <ProCard title="Recharge Amount" bordered headerBordered>

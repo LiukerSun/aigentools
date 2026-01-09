@@ -13,6 +13,7 @@ export interface PaymentMethodResponse {
 export interface CreatePaymentRequest {
   amount: number;
   payment_method_uuid: string;
+  payment_channel: 'alipay' | 'wxpay';
   return_url: string;
 }
 
