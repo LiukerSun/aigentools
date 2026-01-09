@@ -40,6 +40,12 @@ export default [
     component: './task/list',
   },
   {
+    path: '/recharge',
+    name: 'recharge',
+    icon: 'PayCircle',
+    component: './Recharge',
+  },
+  {
     path: '/admin',
     name: 'admin',
     icon: 'crown',
@@ -59,6 +65,11 @@ export default [
         path: '/admin/model-manage',
         name: 'model-management',
         component: './admin/ModelManage',
+      },
+      {
+        path: '/admin/payment',
+        name: 'payment-management',
+        component: './admin/PaymentManage',
       },
     ],
   },
