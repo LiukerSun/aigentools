@@ -144,14 +144,22 @@ const TaskList: React.FC = () => {
       dataIndex: 'input_data',
       search: false,
       width: 200,
-      ellipsis: true,
       render: (_, record) => {
         const inputData = record.input_data?.data || record.input_data;
         const prompt = inputData?.prompt;
         if (!prompt) return '-';
         return (
           <Tooltip title={prompt}>
-            <span>{prompt}</span>
+            <div
+              style={{
+                width: 200,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {prompt}
+            </div>
           </Tooltip>
         );
       },
@@ -171,15 +179,15 @@ const TaskList: React.FC = () => {
         <span>{record.retry_count} / {record.max_retries}</span>
       ),
     },
-    {
-      title: '输入参数',
-      dataIndex: 'input_data',
-      width: 200,
-      search: false,
-      render: (_, record) => (
-        <a onClick={() => handleShowParam(record.input_data)}>查看参数</a>
-      ),
-    },
+    // {
+    //   title: '输入参数',
+    //   dataIndex: 'input_data',
+    //   width: 200,
+    //   search: false,
+    //   render: (_, record) => (
+    //     <a onClick={() => handleShowParam(record.input_data)}>查看参数</a>
+    //   ),
+    // },
     {
       title: '创建时间',
       dataIndex: 'created_at',
@@ -187,13 +195,13 @@ const TaskList: React.FC = () => {
       width: 160,
       search: false,
     },
-    {
-      title: '更新时间',
-      dataIndex: 'updated_at',
-      valueType: 'dateTime',
-      width: 160,
-      search: false,
-    },
+    // {
+    //   title: '更新时间',
+    //   dataIndex: 'updated_at',
+    //   valueType: 'dateTime',
+    //   width: 160,
+    //   search: false,
+    // },
     {
       title: '操作',
       valueType: 'option',
@@ -201,7 +209,7 @@ const TaskList: React.FC = () => {
       render: (_, record) => [
         record.status === 1 && (
           <a key="approve" onClick={() => handleApprove(record.id)}>
-            审核
+            开始
           </a>
         ),
         record.status === 1 && (
@@ -222,6 +230,7 @@ const TaskList: React.FC = () => {
         headerTitle="任务列表"
         actionRef={actionRef}
         rowKey="id"
+        scroll={{ x: 'max-content' }}
         search={{
           labelWidth: 120,
         }}
