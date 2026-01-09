@@ -171,7 +171,7 @@ export const layout: RunTimeLayoutConfig = ({
 };
 
 export const request: RequestConfig = {
-  baseURL: "https://ai.api.liukersun.com",
+  baseURL: isDev ? "http://localhost:8000" : "https://ai.api.liukersun.com",
   ...errorConfig,
   requestInterceptors: [
     (config: any) => {
