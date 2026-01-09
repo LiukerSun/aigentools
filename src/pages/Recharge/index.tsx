@@ -40,11 +40,11 @@ const RechargePage: React.FC = () => {
 
   const handleRecharge = async () => {
     if (!amount || amount <= 0) {
-      message.warning('Please enter a valid amount');
+      message.warning('请输入一个有效的金额');
       return;
     }
     if (!selectedMethod) {
-      message.warning('Please select a payment method');
+      message.warning('请选择一个支付方式');
       return;
     }
 
@@ -71,84 +71,84 @@ const RechargePage: React.FC = () => {
   };
 
   return (
-    <PageContainer title="Recharge Account">
+    <PageContainer title="充值账号">
       <ProCard direction="column" ghost gutter={[0, 16]} style={{ maxWidth: 800, margin: '0 auto' }}>
-        <ProCard title="Select Payment Method" loading={loading} bordered headerBordered>
-             {methods.length > 0 ? (
-                <Radio.Group 
-                  value={selectedMethod} 
-                  onChange={(e) => setSelectedMethod(e.target.value)}
-                  style={{ width: '100%' }}
-                >
-                  <Space direction="vertical" style={{ width: '100%' }}>
-                    {methods.map((method) => (
-                      <ProCard key={method.uuid} bordered style={{ marginBottom: 8 }} bodyStyle={{ padding: 16 }}>
-                        <Radio value={method.uuid} style={{ width: '100%' }}>
-                           <span style={{ fontWeight: 500 }}>{method.name}</span> 
-                           <span style={{ color: '#888', marginLeft: 8 }}>({method.type})</span>
-                        </Radio>
-                      </ProCard>
-                    ))}
-                  </Space>
-                </Radio.Group>
-             ) : (
-               <div>No payment methods available</div>
-             )}
+        <ProCard title="选择支付方式" loading={loading} bordered headerBordered>
+          {methods.length > 0 ? (
+            <Radio.Group
+              value={selectedMethod}
+              onChange={(e) => setSelectedMethod(e.target.value)}
+              style={{ width: '100%' }}
+            >
+              <Space direction="vertical" style={{ width: '100%' }}>
+                {methods.map((method) => (
+                  <ProCard key={method.uuid} bordered style={{ marginBottom: 8 }} bodyStyle={{ padding: 16 }}>
+                    <Radio value={method.uuid} style={{ width: '100%' }}>
+                      <span style={{ fontWeight: 500 }}>{method.name}</span>
+                      <span style={{ color: '#888', marginLeft: 8 }}>({method.type})</span>
+                    </Radio>
+                  </ProCard>
+                ))}
+              </Space>
+            </Radio.Group>
+          ) : (
+            <div>暂无可用支付方式</div>
+          )}
         </ProCard>
 
-        <ProCard title="Select Payment Channel" bordered headerBordered>
-             <Segmented
-                options={[
-                  {
-                    label: (
-                      <div style={{ padding: 4 }}>
-                        <AlipayOutlined style={{ fontSize: 24, color: '#1677ff' }} />
-                        <div>Alipay</div>
-                      </div>
-                    ),
-                    value: 'alipay',
-                  },
-                  {
-                    label: (
-                      <div style={{ padding: 4 }}>
-                        <WechatOutlined style={{ fontSize: 24, color: '#52c41a' }} />
-                        <div>WeChat Pay</div>
-                      </div>
-                    ),
-                    value: 'wxpay',
-                  },
-                ]}
-                value={selectedChannel}
-                onChange={(value) => setSelectedChannel(value as 'alipay' | 'wxpay')}
-              />
+        <ProCard title="选择支付渠道" bordered headerBordered>
+          <Segmented
+            options={[
+              {
+                label: (
+                  <div style={{ padding: 4 }}>
+                    <AlipayOutlined style={{ fontSize: 24, color: '#1677ff' }} />
+                    <div>支付宝</div>
+                  </div>
+                ),
+                value: 'alipay',
+              },
+              {
+                label: (
+                  <div style={{ padding: 4 }}>
+                    <WechatOutlined style={{ fontSize: 24, color: '#52c41a' }} />
+                    <div>微信支付</div>
+                  </div>
+                ),
+                value: 'wxpay',
+              },
+            ]}
+            value={selectedChannel}
+            onChange={(value) => setSelectedChannel(value as 'alipay' | 'wxpay')}
+          />
         </ProCard>
 
-        <ProCard title="Recharge Amount" bordered headerBordered>
-           <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              <div>
-                <div style={{ marginBottom: 8, color: '#666' }}>Amount (USD)</div>
-                <InputNumber
-                  style={{ width: '100%' }}
-                  prefix="$"
-                  value={amount}
-                  onChange={setAmount}
-                  precision={2}
-                  min={0.01}
-                  placeholder="Enter amount to recharge"
-                  size="large"
-                />
-              </div>
-              <Button 
-                type="primary" 
-                onClick={handleRecharge} 
-                loading={submitting}
-                disabled={loading || methods.length === 0}
+        <ProCard title="充值金额" bordered headerBordered>
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <div>
+              <div style={{ marginBottom: 8, color: '#666' }}>金额 (人民币)</div>
+              <InputNumber
+                style={{ width: '100%' }}
+                prefix="¥"
+                value={amount}
+                onChange={setAmount}
+                precision={2}
+                min={2}
+                placeholder="输入充值金额"
                 size="large"
-                block
-              >
-                Recharge Now
-              </Button>
-           </Space>
+              />
+            </div>
+            <Button
+              type="primary"
+              onClick={handleRecharge}
+              loading={submitting}
+              disabled={loading || methods.length === 0}
+              size="large"
+              block
+            >
+              充值
+            </Button>
+          </Space>
         </ProCard>
       </ProCard>
     </PageContainer>
