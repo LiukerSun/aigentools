@@ -4,6 +4,7 @@ export interface AIModelItem {
     description?: string;
     status?: 'open' | 'closed' | 'draft';
     url?: string;
+    price?: number;
     parameters?: Record<string, any>; // JSON
     created_at?: string;
     updated_at?: string;
@@ -20,6 +21,7 @@ export interface CreateModelParams {
     name: string;
     status: 'open' | 'closed' | 'draft';
     url?: string;
+    price?: number;
     description?: string;
     parameters?: Record<string, any>;
 }
@@ -29,6 +31,7 @@ export interface UpdateModelParams {
     description?: string;
     status?: 'open' | 'closed' | 'draft';
     url?: string;
+    price?: number;
     parameters?: Record<string, any>;
 }
 
@@ -42,6 +45,7 @@ export interface AIModelNameItem {
     description?: string;
     status: 'open' | 'closed' | 'draft';
     url?: string;
+    price?: number;
     created_at?: string;
     updated_at?: string;
 }

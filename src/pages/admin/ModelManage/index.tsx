@@ -6,6 +6,7 @@ import {
   ProFormText,
   ProFormSelect,
   ProFormTextArea,
+  ProFormDigit,
 } from '@ant-design/pro-components';
 import { Button, message, Modal } from 'antd';
 import React, { useRef, useState } from 'react';
@@ -22,7 +23,7 @@ const ModelManage: React.FC = () => {
   const [jsonModalVisible, setJsonModalVisible] = useState<boolean>(false);
   const [currentJson, setCurrentJson] = useState<Record<string, any>>({});
 
-  const handleCreate = async (values: CreateModelParams & { parameters?: string }) => {
+  const handleCreate = async (values: CreateModelParams & { parameters?: string; description?: string; price?: number }) => {
     const hide = message.loading('正在创建...');
     try {
       let params = values.parameters;
@@ -38,7 +39,7 @@ const ModelManage: React.FC = () => {
         params = undefined;
       }
 
-      await createModel({ ...values, parameters: params as Record<string, any> });
+      await createModel({ ...values, price: Number(values.price), parameters: params as Record<string, any> });
       hide();
       message.success('创建成功');
       setCreateModalVisible(false);
@@ -51,7 +52,7 @@ const ModelManage: React.FC = () => {
     }
   };
 
-  const handleUpdate = async (values: UpdateModelParams & { parameters?: string }) => {
+  const handleUpdate = async (values: UpdateModelParams & { parameters?: string; price?: number }) => {
     const hide = message.loading('正在更新...');
     try {
       if (!currentRow?.id) return false;
@@ -69,7 +70,7 @@ const ModelManage: React.FC = () => {
         params = undefined;
       }
 
-      await updateModel(currentRow.id, { ...values, parameters: params as Record<string, any> });
+      await updateModel(currentRow.id, { ...values, price: Number(values.price), parameters: params as Record<string, any> });
       hide();
       message.success('更新成功');
       setUpdateModalVisible(false);
@@ -113,6 +114,12 @@ const ModelManage: React.FC = () => {
       title: '描述',
       dataIndex: 'description',
       ellipsis: true,
+      hideInSearch: true,
+    },
+    {
+      title: '价格',
+      dataIndex: 'price',
+      copyable: true,
       hideInSearch: true,
     },
     {
@@ -252,6 +259,11 @@ const ModelManage: React.FC = () => {
           label="接口地址"
           placeholder="请输入模型接口地址"
         />
+        <ProFormDigit
+          name="price"
+          label="价格"
+          placeholder="请输入价格"
+        />
         <ProFormTextArea
           name="description"
           label="描述"
@@ -320,6 +332,11 @@ const ModelManage: React.FC = () => {
           name="url"
           label="接口地址"
           placeholder="请输入模型接口地址"
+        />
+        <ProFormDigit
+          name="price"
+          label="价格"
+          placeholder="请输入价格"
         />
         <ProFormTextArea
           name="description"

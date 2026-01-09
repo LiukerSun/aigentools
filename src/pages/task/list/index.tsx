@@ -1,20 +1,19 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, StepsForm, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Tag, Space, message, Image, Tooltip, Card, Typography, Spin, Input, Divider, Popconfirm } from 'antd';
+import { Button, message, Image, Tooltip, Typography, Popconfirm } from 'antd';
 import React, { useRef, useState, useEffect } from 'react';
 import { ModalForm, ProFormTextArea } from '@ant-design/pro-components';
 import { getTaskList, getTaskDetail, approveTask, updateTask, submitTask, cancelTask } from '@/services/api/v1/task/api';
+import { currentUser as queryCurrentUser } from '@/services/api/v1/user/api';
 import { getModelNames, getModelParameters } from '@/services/api/v1/models/api';
 import type { TaskItem } from '@/services/api/v1/task/type';
 import type { AIModelConfig, AIModelNameItem } from '@/services/api/v1/models/type';
-import ReactJson from 'react-json-view';
 import TaskDetail from './components/TaskDetail';
 import DynamicApiForm from './DynamicApiForm';
 import ImageAnalysisPanel from './components/ImageAnalysisPanel';
 import { Modal, Row, Col } from 'antd';
 import { useModel } from '@umijs/max';
 
-const { Paragraph, Text } = Typography;
 
 /**
  * 任务状态枚举
@@ -40,15 +39,22 @@ const TaskList: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [currentTask, setCurrentTask] = useState<TaskItem>();
   const [editFormInitialValues, setEditFormInitialValues] = useState<{ input_data: string }>();
-
-  const [paramModalOpen, setParamModalOpen] = useState(false);
-  const [currentParam, setCurrentParam] = useState<object>({});
-
-  const { initialState } = useModel('@@initialState');
+  const { initialState, setInitialState } = useModel('@@initialState');
   const { currentUser } = initialState || {};
 
+  const fetchUserInfo = async () => {
+    try {
+      const res = await queryCurrentUser();
+      if (res?.data) {
+        setInitialState((s) => ({ ...s, currentUser: res.data }));
+      }
+    } catch (error) {
+      console.error('Fetch user info failed', error);
+    }
+  };
+
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  const [modelId, setModelId] = useState<number>();
+  const [_, setModelId] = useState<number>();
   const [modelConfig, setModelConfig] = useState<AIModelConfig>();
   const [modelList, setModelList] = useState<AIModelNameItem[]>([]);
 
@@ -62,10 +68,6 @@ const TaskList: React.FC = () => {
     });
   }, []);
 
-  const handleShowParam = (param: object) => {
-    setCurrentParam(param);
-    setParamModalOpen(true);
-  };
 
   const handleShowDetail = async (record: TaskItem) => {
     try {
@@ -110,8 +112,9 @@ const TaskList: React.FC = () => {
       const res = await cancelTask(record.id);
       if (res && res.status === 200) {
         message.success('任务已取消');
-        actionRef.current?.reload();
-      } else {
+          actionRef.current?.reload();
+          fetchUserInfo();
+        } else {
         message.error('取消失败: ' + (res?.message || '未知错误'));
       }
     } catch (error) {
@@ -193,15 +196,6 @@ const TaskList: React.FC = () => {
         <span>{record.retry_count} / {record.max_retries}</span>
       ),
     },
-    // {
-    //   title: '输入参数',
-    //   dataIndex: 'input_data',
-    //   width: 200,
-    //   search: false,
-    //   render: (_, record) => (
-    //     <a onClick={() => handleShowParam(record.input_data)}>查看参数</a>
-    //   ),
-    // },
     {
       title: '创建时间',
       dataIndex: 'created_at',
@@ -209,13 +203,6 @@ const TaskList: React.FC = () => {
       width: 160,
       search: false,
     },
-    // {
-    //   title: '更新时间',
-    //   dataIndex: 'updated_at',
-    //   valueType: 'dateTime',
-    //   width: 160,
-    //   search: false,
-    // },
     {
       title: '操作',
       valueType: 'option',
@@ -307,23 +294,6 @@ const TaskList: React.FC = () => {
         onApprove={handleApprove}
       />
 
-      <Modal
-        title="任务参数"
-        open={paramModalOpen}
-        onCancel={() => setParamModalOpen(false)}
-        footer={null}
-        width={600}
-      >
-        <div style={{ maxHeight: 500, overflow: 'auto' }}>
-          <ReactJson
-            src={currentParam}
-            collapsed={false}
-            displayDataTypes={false}
-            enableClipboard={true}
-            name={false}
-          />
-        </div>
-      </Modal>
 
       <ModalForm
         title="编辑任务参数"
@@ -433,6 +403,7 @@ const TaskList: React.FC = () => {
                 setModelId(undefined);
                 setModelConfig(undefined);
                 actionRef.current?.reload();
+                fetchUserInfo();
                 return true;
               } else {
                 message.error('提交失败: ' + (res?.message || '未知错误'));
@@ -472,6 +443,21 @@ const TaskList: React.FC = () => {
             name="base"
             title="选择模型"
             onFinish={async (values) => {
+              const selectedModel = modelList.find((m) => m.id === values.modelId);
+              if (!selectedModel) {
+                message.error('未找到所选模型');
+                return false;
+              }
+
+              const modelPrice = selectedModel.price || 0;
+              const userBalance = currentUser?.credit?.available || 0;
+
+              if (modelPrice > 0 && userBalance < modelPrice) {
+                message.error(`余额不足, 当前余额: ¥ ${userBalance.toFixed(2)}, 所选模型价格: ¥ ${modelPrice.toFixed(2)}`);
+                return false;
+              }
+
+
               setModelId(values.modelId);
               try {
                 const res = await getModelParameters(values.modelId);
@@ -492,7 +478,7 @@ const TaskList: React.FC = () => {
               label="模型名称"
               rules={[{ required: true, message: '请选择模型' }]}
               options={modelList.map((item) => ({
-                label: item.name,
+                label: `${item.name}${item.price ? ` - 每条价格: ¥ ${item.price} `  : ''}`,
                 value: item.id,
               }))}
             />
