@@ -1,9 +1,9 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, StepsForm, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Tag, Space, message, Image, Tooltip, Card, Typography, Spin, Input, Divider } from 'antd';
+import { Button, Tag, Space, message, Image, Tooltip, Card, Typography, Spin, Input, Divider, Popconfirm } from 'antd';
 import React, { useRef, useState, useEffect } from 'react';
 import { ModalForm, ProFormTextArea } from '@ant-design/pro-components';
-import { getTaskList, getTaskDetail, approveTask, updateTask, submitTask } from '@/services/api/v1/task/api';
+import { getTaskList, getTaskDetail, approveTask, updateTask, submitTask, cancelTask } from '@/services/api/v1/task/api';
 import { getModelNames, getModelParameters } from '@/services/api/v1/models/api';
 import type { TaskItem } from '@/services/api/v1/task/type';
 import type { AIModelConfig, AIModelNameItem } from '@/services/api/v1/models/type';
@@ -103,6 +103,20 @@ const TaskList: React.FC = () => {
       input_data: JSON.stringify(inputData, null, 2),
     });
     setEditModalOpen(true);
+  };
+
+  const handleCancel = async (record: TaskItem) => {
+    try {
+      const res = await cancelTask(record.id);
+      if (res && res.status === 200) {
+        message.success('任务已取消');
+        actionRef.current?.reload();
+      } else {
+        message.error('取消失败: ' + (res?.message || '未知错误'));
+      }
+    } catch (error) {
+      message.error('取消失败');
+    }
   };
 
   const columns: ProColumns<TaskItem>[] = [
@@ -209,13 +223,22 @@ const TaskList: React.FC = () => {
       render: (_, record) => [
         record.status === 1 && (
           <a key="approve" onClick={() => handleApprove(record.id)}>
-            开始
+            审核
           </a>
         ),
         record.status === 1 && (
           <a key="edit" onClick={() => handleEdit(record)}>
             编辑
           </a>
+        ),
+        (record.status === 1 || record.status === 2) && (
+          <Popconfirm
+            key="cancel"
+            title="确定要取消该任务吗？"
+            onConfirm={() => handleCancel(record)}
+          >
+            <a style={{ color: 'red' }}>取消</a>
+          </Popconfirm>
         ),
         <a key="detail" onClick={() => handleShowDetail(record)}>
           详情

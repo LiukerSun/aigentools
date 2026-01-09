@@ -31,8 +31,15 @@ export async function approveTask(id: number) {
   });
 }
 
+/** 取消任务 */
+export async function cancelTask(id: number) {
+  return request<{ status: number; message: string; data: TaskItem }>(`/api/v1/tasks/${id}/cancel`, {
+    method: 'POST',
+  });
+}
+
 /** 修改任务 */
-export async function updateTask(id: number, data: { body: Record<string, any> }) {
+export async function updateTask(id: number, data: Record<string, any>) {
   return request<{ status: number; message: string; data: TaskItem }>(`/api/v1/tasks/${id}`, {
     method: 'PUT',
     data,
