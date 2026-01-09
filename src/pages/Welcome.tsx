@@ -82,7 +82,7 @@ const Welcome: React.FC = () => {
               fontWeight: 500,
             }}
           >
-            Welcome back, {currentUser.username}!
+            欢迎, {currentUser.username}!
           </div>
           <div
             style={{
@@ -93,7 +93,7 @@ const Welcome: React.FC = () => {
                   : '#666',
             }}
           >
-            Role: {currentUser.role}
+            角色: {currentUser.role}
           </div>
         </div>
       </Card>
@@ -102,7 +102,7 @@ const Welcome: React.FC = () => {
         <Col span={8}>
           <Card>
             <Statistic
-              title="Credit Limit"
+              title="信用额度"
               value={currentUser.creditLimit}
               precision={2}
             />
@@ -111,7 +111,7 @@ const Welcome: React.FC = () => {
         <Col span={8}>
           <Card>
             <Statistic
-              title="Available Credit"
+              title="可用额度"
               value={currentUser.credit?.available}
               precision={2}
             />
@@ -120,7 +120,7 @@ const Welcome: React.FC = () => {
         <Col span={8}>
           <Card>
             <Statistic
-              title="Used Credit"
+              title="已用额度"
               value={currentUser.credit?.used}
               precision={2}
             />

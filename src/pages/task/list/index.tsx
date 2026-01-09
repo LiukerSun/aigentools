@@ -55,7 +55,9 @@ const TaskList: React.FC = () => {
   useEffect(() => {
     getModelNames().then(res => {
       if (res.status === 200 && res.data) {
-        setModelList(res.data);
+        // Filter only open models
+        const openModels = res.data.filter((item) => item.status === 'open');
+        setModelList(openModels);
       }
     });
   }, []);
@@ -365,9 +367,13 @@ const TaskList: React.FC = () => {
         open={createModalVisible}
         onCancel={() => {
           setCreateModalVisible(false);
+          setModelId(undefined);
+          setModelConfig(undefined);
         }}
         footer={null}
         width={1200}
+        destroyOnHidden={true}
+        maskClosable={false}
       >
         <StepsForm
           onFinish={async (values) => {
@@ -392,6 +398,8 @@ const TaskList: React.FC = () => {
               if (res && res.status === 200) {
                 message.success('提交成功');
                 setCreateModalVisible(false);
+                setModelId(undefined);
+                setModelConfig(undefined);
                 actionRef.current?.reload();
                 return true;
               } else {
