@@ -1,6 +1,6 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginForm, ProFormText } from '@ant-design/pro-components';
-import { FormattedMessage, Helmet, SelectLang, useIntl } from '@umijs/max';
+import { FormattedMessage, Helmet, Link, SelectLang, useIntl } from '@umijs/max';
 import { Alert, App } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { useState } from 'react';
@@ -247,17 +247,17 @@ const Register: React.FC = () => {
               marginBottom: 24,
             }}
           >
-            <a
+            <Link
               style={{
                 float: 'right',
               }}
-              href="/user/login"
+              to="/user/login"
             >
               <FormattedMessage
                 id="pages.register.goToLogin"
                 defaultMessage="使用已有账户登录"
               />
-            </a>
+            </Link>
           </div>
         </LoginForm>
       </div>

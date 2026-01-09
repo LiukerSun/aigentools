@@ -1,7 +1,7 @@
 import { setAuthInfo } from '@/utils/auth';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginForm, ProFormText } from '@ant-design/pro-components';
-import { history, useModel } from '@umijs/max';
+import { history, Link, useModel } from '@umijs/max';
 import { Alert, message, Tabs } from 'antd';
 import React, { useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -133,8 +133,10 @@ const Login: React.FC = () => {
         <div
           style={{
             marginBottom: 24,
+            textAlign: 'right',
           }}
         >
+          <Link to="/user/register">注册账户</Link>
         </div>
       </LoginForm>
     </div>

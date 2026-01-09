@@ -17,7 +17,7 @@ export async function login(body: API.LoginParams, options?: { [key: string]: an
 
 /** 注册 POST /api/v1/auth/register */
 export async function register(body: API.RegisterParams, options?: { [key: string]: any }) {
-    return request<{ data: API.LoginResult }>('/api/v1/auth/register', {
+    return request<{ data: API.RegisterResult; message: string; status: number }>('/api/v1/auth/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
