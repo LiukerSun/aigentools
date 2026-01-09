@@ -144,7 +144,7 @@ const TaskList: React.FC = () => {
       width: 100,
       render: (_, record) => {
         const inputData = record.input_data?.data || record.input_data;
-        const imgUrl = inputData?.image;
+        const imgUrl = inputData?.image || inputData?.image_url;
         if (!imgUrl) return '-';
         return (
           <Image
