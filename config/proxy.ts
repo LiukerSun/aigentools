@@ -14,7 +14,7 @@ export default {
   dev: {
     '/api/': {
       // 要代理的地址
-      target: 'https://api.ai.liukersun.com',
+      target: 'https://ai.api.liukersun.com',
       // 配置了这个可以从 http 代理到 https
       // 依赖 origin 的功能可能需要这个，比如 cookie
       changeOrigin: true,
@@ -22,7 +22,7 @@ export default {
   },
   build: {
     '/api/': {
-      target: 'https://api.ai.liukersun.com',
+      target: 'https://ai.api.liukersun.com',
       changeOrigin: true,
     },
   },

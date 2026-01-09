@@ -7,13 +7,41 @@ import {
   ProFormTextArea,
   ProFormField,
 } from '@ant-design/pro-components';
-import { Collapse } from 'antd';
+import { Collapse, Button, message, Tooltip } from 'antd';
+import { CopyOutlined } from '@ant-design/icons';
 import AliyunOSSUpload from '@/components/AliyunOSSUpload';
 import { AIModelConfig, ModelParameter } from '@/services/api/v1/models/type';
 
 interface DynamicApiFormProps {
   schema: AIModelConfig;
 }
+
+const UploadWithCopy: React.FC<{
+  value?: string;
+  onChange?: (value: string) => void;
+}> = ({ value, onChange, ...props }) => {
+  const handleCopy = () => {
+    if (value) {
+      navigator.clipboard.writeText(value);
+      message.success('链接已复制');
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+      <AliyunOSSUpload value={value} onChange={onChange} {...props} />
+      {value && (
+        <Tooltip title="复制图片链接">
+          <Button
+            icon={<CopyOutlined />}
+            onClick={handleCopy}
+            style={{ marginTop: 30 }}
+          />
+        </Tooltip>
+      )}
+    </div>
+  );
+};
 
 const renderField = (param: ModelParameter) => {
   const key = param.name;
@@ -54,7 +82,7 @@ const renderField = (param: ModelParameter) => {
       ) {
         return (
           <ProFormField key={key} {...commonProps}>
-            <AliyunOSSUpload />
+            <UploadWithCopy />
           </ProFormField>
         );
       }

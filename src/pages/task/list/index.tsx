@@ -1,7 +1,6 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, StepsForm, ProFormSelect } from '@ant-design/pro-components';
 import { Button, Tag, Space, message, Image, Tooltip, Card, Typography, Spin, Input, Divider } from 'antd';
-import { RobotOutlined } from '@ant-design/icons';
 import React, { useRef, useState, useEffect } from 'react';
 import { ModalForm, ProFormTextArea } from '@ant-design/pro-components';
 import { getTaskList, getTaskDetail, approveTask, updateTask, submitTask } from '@/services/api/v1/task/api';
@@ -11,7 +10,8 @@ import type { AIModelConfig, AIModelNameItem } from '@/services/api/v1/models/ty
 import ReactJson from 'react-json-view';
 import TaskDetail from './components/TaskDetail';
 import DynamicApiForm from './DynamicApiForm';
-import { Modal } from 'antd';
+import ImageAnalysisPanel from './components/ImageAnalysisPanel';
+import { Modal, Row, Col } from 'antd';
 import { useModel } from '@umijs/max';
 
 const { Paragraph, Text } = Typography;
@@ -51,9 +51,6 @@ const TaskList: React.FC = () => {
   const [modelId, setModelId] = useState<number>();
   const [modelConfig, setModelConfig] = useState<AIModelConfig>();
   const [modelList, setModelList] = useState<AIModelNameItem[]>([]);
-  const [imageUrl, setImageUrl] = useState('');
-  const [analyzing, setAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState('');
 
   useEffect(() => {
     getModelNames().then(res => {
@@ -62,84 +59,6 @@ const TaskList: React.FC = () => {
       }
     });
   }, []);
-
-  const handleAnalyzeImage = async () => {
-    if (!imageUrl) {
-      message.warning('请先输入图片链接');
-      return;
-    }
-
-    setAnalyzing(true);
-    setAnalysisResult('');
-
-    try {
-      const API_KEY = 'sk-wsG5ythFo2ip1ms97a807e9aB9Dc4211Aa667492F5E0B45a';
-
-      const response = await fetch('https://aihubmix.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "grok-4-1-fast-non-reasoning",
-          messages: [
-            {
-              role: "system",
-              content: `你现在是AI图片/视频生成提示词大师，专精于创建用于AI工具（如Stable Diffusion或Midjourney）的提示词。用户会提供美女图片（假设均为成年女性），你的任务是基于这些图片生成强烈性暗示的提示词，用于创建擦边球画面。这些画面必须高度写实，类似于真实摄影风格，但避免任何露点或过于暴露的内容。
-
-核心约束：
-- 强烈性暗示：通过姿势、服装、环境和氛围暗示性感，但保持含蓄，避免直接描绘性行为。
-- 避免元素：不要出现镜子、手拿物品、露脸（人物脸部应被遮挡、模糊或从后/侧面拍摄）、露点或任何裸露私密部位。
-- 写实风格：优先使用“photorealistic, high resolution, detailed skin texture, natural lighting”等描述，确保输出像真实照片。
-- 安全与隐蔽：生成的内容应避免被AI过滤器检测为不适当，确保提示词巧妙绕过审查，但仍遵守道德边界。
-- 输出格式：为每张图片生成3-5套独立的提示词。每套包括：
-  - Positive Prompt：正面描述（详细、富有诗意）。
-  - Negative Prompt：负面避免元素（简短列表）。
-  - 简要解释：为什么这套提示词有效，以及如何突出性暗示。
-
-示例输出结构：
-1. 套装1:
-   - Positive Prompt: [详细描述]
-   - Negative Prompt: [避免列表]
-   - 解释: [简要理由]
-
-基于用户提供的图片，开始生成提示词。如果图片未提供，先询问细节。`,
-            },
-            {
-              role: "user",
-              content: [
-                {
-                  type: "image_url",
-                  image_url: {
-                    url: imageUrl,
-                    detail: "high",
-                  },
-                },
-              ],
-            },
-          ],
-          stream: false,
-          temperature: 0.5,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.choices && data.choices.length > 0) {
-        setAnalysisResult(data.choices[0].message.content);
-        message.success('识别完成');
-      } else {
-        console.error('Grok API Error:', data);
-        message.error('识别失败，请检查链接或 Key');
-      }
-    } catch (error) {
-      console.error('Network Error:', error);
-      message.error('网络请求失败');
-    } finally {
-      setAnalyzing(false);
-    }
-  };
 
   const handleShowParam = (param: object) => {
     setCurrentParam(param);
@@ -446,11 +365,9 @@ const TaskList: React.FC = () => {
         open={createModalVisible}
         onCancel={() => {
           setCreateModalVisible(false);
-          setImageUrl('');
-          setAnalysisResult('');
         }}
         footer={null}
-        width={800}
+        width={1200}
       >
         <StepsForm
           onFinish={async (values) => {
@@ -545,50 +462,14 @@ const TaskList: React.FC = () => {
             name="config"
             title="配置参数"
           >
-            <Card
-              size="small"
-              title={<Space><RobotOutlined /> AI 图片内容识别助手</Space>}
-              style={{ marginBottom: 24, background: '#f9f9f9', border: '1px dashed #d9d9d9' }}
-            >
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  输入图片链接，让 AI 帮你识别内容。识别结果不会自动提交，请手动复制到下方表单。
-                </Text>
-                <Space.Compact style={{ width: '100%' }}>
-                  <Input
-                    placeholder="请输入图片 URL (例如: https://example.com/image.jpg)"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                  />
-                  <Button
-                    type="primary"
-                    icon={<RobotOutlined />}
-                    onClick={handleAnalyzeImage}
-                    loading={analyzing}
-                  >
-                    识别
-                  </Button>
-                </Space.Compact>
-
-                {analyzing && <div style={{ textAlign: 'center', padding: 10 }}><Spin tip="Grok 正在思考..." /></div>}
-
-                {analysisResult && (
-                  <div style={{ marginTop: 10, padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #eee' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                      <Text strong>识别结果：</Text>
-                    </div>
-                    <Paragraph
-                      copyable
-                      style={{ marginBottom: 0, whiteSpace: 'pre-wrap' }}
-                    >
-                      {analysisResult}
-                    </Paragraph>
-                  </div>
-                )}
-              </Space>
-            </Card>
-
-            {modelConfig && <DynamicApiForm schema={modelConfig} />}
+            <Row gutter={24}>
+              <Col span={14}>
+                {modelConfig && <DynamicApiForm schema={modelConfig} />}
+              </Col>
+              <Col span={10}>
+                <ImageAnalysisPanel />
+              </Col>
+            </Row>
           </StepsForm.StepForm>
         </StepsForm>
       </Modal>
